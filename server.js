@@ -1,33 +1,22 @@
 'use strict';
 
+//call packages used
 var express = require('express');
-var routes = require('./app/routes/index.js');
-var mongoose = require('mongoose');
-var passport = require('passport');
-var session = require('express-session');
-
 var app = express();
-require('dotenv').load();
-require('./app/config/passport')(passport);
 
-mongoose.connect(process.env.MONGO_URI);
+//as code has been set in modules, need to call these modules
+var api = require('./app/api/timestampapi.js');
+var routes = require('./app/routes/index.js');
 
-app.use('/controllers', express.static(process.cwd() + '/app/controllers'));
-app.use('/public', express.static(process.cwd() + '/public'));
-app.use('/common', express.static(process.cwd() + '/app/common'));
-
-app.use(session({
-	secret: 'secretClementine',
-	resave: false,
-	saveUninitialized: true
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-routes(app, passport);
-
+//set port for server to listen on
 var port = process.env.PORT || 8080;
-app.listen(port,  function () {
-	console.log('Node.js listening on port ' + port + '...');
-});
+//set path for app to call static files like index.html, process.cwd refers to current working directory
+app.use('/', express.static(process.cwd() + '/public'));
+//server status message
+app.listen(port);
+console.log('Server started! At http:localhost: ' + port);
+
+
+
+routes(app);
+api(app);
